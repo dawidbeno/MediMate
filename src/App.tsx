@@ -1,16 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { MedicationCard } from './components/MedicationCard';
+import { AddMedicationModal } from './components/AddMedicationModal';
 
 export default function App() {
+  const [medications, setMedications] = useState<string[]>([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleAddMedication = (medicationName: string) => {
+    setMedications([...medications, medicationName]);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Welcome to MediMate</Text>
         <Text style={styles.subtitle}>Your helper for taking medications</Text>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          {medications.map((medication, index) => (
+            <MedicationCard key={index} name={medication} />
+          ))}
+        </ScrollView>
       </View>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => setIsModalVisible(true)}
+      >
         <Text style={styles.buttonText}>Add medication</Text>
       </TouchableOpacity>
+      
+      <AddMedicationModal
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+        onAdd={handleAddMedication}
+      />
       <StatusBar style="auto" />
     </View>
   );
@@ -24,7 +48,10 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 100,
+    paddingHorizontal: 20,
+    width: '100%',
   },
   title: {
     fontSize: 24,
@@ -34,7 +61,17 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 30,
   },
+
+  scrollView: {
+    width: '100%',
+    flex: 1,
+  },
+  scrollContent: {
+    paddingVertical: 10,
+  },
+
   button: {
     backgroundColor: '#007AFF',
     paddingVertical: 15,
