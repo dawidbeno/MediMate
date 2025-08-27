@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { MedicationCard } from './components/MedicationCard';
-import { AddMedicationModal } from './components/AddMedicationModal';
+import { MedicationCard } from '../components/MedicationCard';
+import { AddMedicationModal } from '../components/AddMedicationModal';
 
 export default function App() {
   const [medications, setMedications] = useState<string[]>([]);
@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 30,
   },
-
   scrollView: {
     width: '100%',
     flex: 1,
@@ -71,7 +70,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingVertical: 10,
   },
-
   button: {
     backgroundColor: '#007AFF',
     paddingVertical: 15,
