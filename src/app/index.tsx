@@ -1,16 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import { MedicationCard } from '../components/MedicationCard';
-import { AddMedicationModal } from '../components/AddMedicationModal';
 
 export default function App() {
   const [medications, setMedications] = useState<string[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const handleAddMedication = (medicationName: string) => {
-    setMedications([...medications, medicationName]);
-  };
 
   return (
     <View style={styles.container}>
@@ -25,16 +20,10 @@ export default function App() {
       </View>
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => setIsModalVisible(true)}
+        onPress={() => router.push('/addMedication')}
       >
         <Text style={styles.buttonText}>Add medication</Text>
       </TouchableOpacity>
-      
-      <AddMedicationModal
-        visible={isModalVisible}
-        onClose={() => setIsModalVisible(false)}
-        onAdd={handleAddMedication}
-      />
       <StatusBar style="auto" />
     </View>
   );
