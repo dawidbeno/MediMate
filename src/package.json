@@ -1,7 +1,7 @@
 {
-  "name": "medimate",
-  "version": "0.0.0",
-  "main": "expo-router/entry",
+  "name": "src",
+  "version": "1.0.0",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -9,20 +9,14 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "expo": "~53.0.22",
-    "expo-constants": "~17.1.7",
-    "expo-linking": "~7.1.7",
-    "expo-router": "~5.1.5",
-    "expo-status-bar": "~2.2.3",
-    "react": "19.0.0",
-    "react-native": "0.79.6",
-    "react-native-safe-area-context": "5.4.0",
-    "react-native-screens": "~4.11.1"
+    "expo": "~54.0.22",
+    "expo-status-bar": "~3.0.8",
+    "react": "19.1.0",
+    "react-native": "0.81.5"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@types/react": "~19.0.10",
-    "typescript": "~5.8.3"
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
   },
   "private": true
 }
