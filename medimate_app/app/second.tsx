@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { theme } from "@/theme";
 
 export default function SecondScreen() {
   return (
@@ -14,7 +15,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: theme.colorWhite,
   },
   text: {
     fontSize: 20,

@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { theme } from "@/theme";
 
 export default function TabLayout() {
   return (
@@ -8,13 +9,13 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={() => ({
         tabBarShowLabel: false,
         tabBarIcon: ({ size, color }) => (
-            <Ionicons name="notifications-circle-outline" size={size} color={color} />
+            <MaterialIcons name="notification-add" size={30} color={theme.colorBrown} />
           )
       })}/>
       <Tabs.Screen name="second" options={() => ({
         tabBarShowLabel: false,
         tabBarIcon: ({ size, color }) => (
-          <AntDesign name="user-add" size={size} color={color} />
+          <FontAwesome name="file-text" size={30} color={theme.colorBrown} />
         )
       })}/>
     </Tabs>

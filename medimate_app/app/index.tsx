@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { theme } from "@/theme";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -107,7 +108,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: theme.colorWhite,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 20,
