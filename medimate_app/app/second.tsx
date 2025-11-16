@@ -1,15 +1,24 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, Button } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from "@/theme";
-
 
 export default function SecondScreen() {
   const [inputText, setInputText] = React.useState('');
   const [savedText, setSavedText] = React.useState('');
 
-  const handleSave = () => {
-    setSavedText(inputText);
-    setInputText('');
+  const storageKey = 'userSavedText';
+
+  const handleSave = async () => {
+    console.log('🔵 [SECOND] Trying to save:', inputText);
+    try {
+      await AsyncStorage.setItem(storageKey, inputText);
+      console.log('✅ [SECOND] Saved successfully to AsyncStorage');
+      setSavedText(inputText);
+      setInputText('');
+    } catch (error) {
+      console.error('❌ [SECOND] Error saving data', error);
+    }
   };
   
   return (

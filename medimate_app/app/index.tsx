@@ -3,7 +3,10 @@ import { StyleSheet, Text, View, Button, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from 'expo-router';
 import { theme } from "@/theme";
+import React from 'react';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -60,10 +63,35 @@ async function scheduleNotification(hour: number, minute: number): Promise<void>
 export default function App() {
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [loadedText, setLoadedText] = useState('');
 
   useEffect(() => {
     registerForPushNotificationsAsync();
   }, []);
+
+  useFocusEffect(
+  React.useCallback(() => {
+    console.log('🟢 [INDEX] Screen focused, trying to load data...');
+
+    const loadData = async () => {
+      try {
+        const saved = await AsyncStorage.getItem('userSavedText');
+        console.log('📦 [INDEX] Raw value from AsyncStorage:', saved);
+
+        if (saved !== null) {
+          console.log('✅ [INDEX] Data found, setting to state:', saved);
+          setLoadedText(saved);
+        } else {
+          console.log('⚠️ [INDEX] No data found in AsyncStorage');
+        }
+      } catch (error) {
+        console.log('❌ [INDEX] Error loading data:', error);
+      }
+    };
+    
+    loadData();
+  }, [])
+);
 
   const onTimeChange = (event: any, selected?: Date) => {
     setShowPicker(Platform.OS === 'ios');
@@ -86,6 +114,8 @@ export default function App() {
       <Text style={styles.timeText}>
         Selected Time: {selectedTime.getHours()}:{selectedTime.getMinutes().toString().padStart(2, '0')}
       </Text>
+
+      <Text>Loaded Text for notification: {loadedText}</Text>
 
       <Button title="Pick Time" onPress={() => setShowPicker(true)} />
 
