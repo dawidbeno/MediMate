@@ -42,7 +42,7 @@ async function registerForPushNotificationsAsync(): Promise<void> {
   }
 }
 
-async function scheduleNotification(hour: number, minute: number): Promise<void> {
+async function scheduleNotification(hour: number, minute: number, text: string): Promise<void> {
   await Notifications.cancelAllScheduledNotificationsAsync();
   
   const timeString = `${hour}:${minute.toString().padStart(2, '0')}`;
@@ -50,7 +50,7 @@ async function scheduleNotification(hour: number, minute: number): Promise<void>
   await Notifications.scheduleNotificationAsync({
     content: {
       title: "Reminder!",
-      body: `This is your scheduled notification for ${timeString}`,
+      body: `${text}`,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -103,7 +103,7 @@ export default function App() {
   const handleSchedule = async () => {
     const hour = selectedTime.getHours();
     const minute = selectedTime.getMinutes();
-    await scheduleNotification(hour, minute);
+    await scheduleNotification(hour, minute, loadedText);
     alert(`Notification scheduled for ${hour}:${minute.toString().padStart(2, '0')}`);
   };
 
