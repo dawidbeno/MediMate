@@ -4,7 +4,7 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { theme } from "@/theme";
 import React from 'react';
 
@@ -64,6 +64,7 @@ export default function App() {
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [loadedText, setLoadedText] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     registerForPushNotificationsAsync();
@@ -131,6 +132,7 @@ export default function App() {
 
       <View style={styles.buttonSpace} />
       <Button title="Schedule Notification" onPress={handleSchedule} />
+      <Button title="Change the message" onPress={() => router.push('/second')} />
     </View>
   );
 }
