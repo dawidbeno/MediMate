@@ -7,7 +7,7 @@ export default function TabLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="second" options={{ headerShown: false, presentation: 'modal' }} />
+      <Stack.Screen name="second" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }
