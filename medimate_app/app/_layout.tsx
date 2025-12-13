@@ -1,13 +1,19 @@
-import { Stack } from 'expo-router';
-//import FontAwesome from '@expo/vector-icons/FontAwesome';
-//import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { theme } from "@/theme";
+import { Stack } from "expo-router";
 
-export default function TabLayout() {
+export default function RootLayout() {
   return (
     <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="second" options={{ headerShown: false, presentation: 'modal' }} />
+      <Stack.Screen
+        name="(tabs)"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="new"
+        options={{
+          presentation: "modal",
+          title: "New Medication",
+        }}
+      />
     </Stack>
   );
 }

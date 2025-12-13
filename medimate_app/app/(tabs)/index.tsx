@@ -133,6 +133,8 @@ export default function App() {
       <View style={styles.buttonSpace} />
       <Button title="Schedule Notification" onPress={handleSchedule} />
       <Button title="Change the message" onPress={() => router.push('/second')} />
+      <View style={styles.buttonSpace} />
+      <Button title="Add Medication" onPress={() => router.push('/new')} />
     </View>
   );
 }

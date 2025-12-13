@@ -3,24 +3,24 @@ import { View, TextInput, Text, StyleSheet, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from "@/theme";
 
-export default function SecondScreen() {
+export default function ProfileScreen() {
   const [inputText, setInputText] = React.useState('');
   const [savedText, setSavedText] = React.useState('');
 
   const storageKey = 'userSavedText';
 
   const handleSave = async () => {
-    console.log('🔵 [SECOND] Trying to save:', inputText);
+    console.log('🔵 [PROFILE] Trying to save:', inputText);
     try {
       await AsyncStorage.setItem(storageKey, inputText);
-      console.log('✅ [SECOND] Saved successfully to AsyncStorage');
+      console.log('✅ [PROFILE] Saved successfully to AsyncStorage');
       setSavedText(inputText);
       setInputText('');
     } catch (error) {
-      console.error('❌ [SECOND] Error saving data', error);
+      console.error('❌ [PROFILE] Error saving data', error);
     }
   };
-  
+
   return (
     <View style={styles.container}>
     <TextInput
@@ -30,7 +30,7 @@ export default function SecondScreen() {
       placeholder="Type something..."
     />
 
-    <Button 
+    <Button
       title="Save"
       onPress={handleSave}
     />
