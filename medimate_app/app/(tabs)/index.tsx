@@ -1,303 +1,99 @@
-import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { theme } from "@/theme";
 import React from 'react';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { SegmentCard } from '@/components/SegmentCard';
-import { CustomButton } from '@/components/CustomButton';
+import { theme } from '@/theme';
+import { useMedicationStore } from '@/store/medicationStore';
+import { MedicationCard } from '@/components/MedicationCard';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
-async function registerForPushNotificationsAsync(): Promise<void> {
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync('default', {
-      name: 'default',
-      importance: Notifications.AndroidImportance.MAX,
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    
-    if (finalStatus !== 'granted') {
-      alert('Notification permissions not granted');
-      return;
-    }
-  }
-}
-
-async function scheduleNotification(hour: number, minute: number, text: string): Promise<void> {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "Reminder!",
-      body: `${text}`,
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour: hour,
-      minute: minute,
-    },
-  });
-
-  // Save last scheduled time
-  const timestamp = new Date().toISOString();
-  await AsyncStorage.setItem('lastScheduledTime', timestamp);
-}
-
-export default function App() {
-  const [selectedTime, setSelectedTime] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
-  const [loadedText, setLoadedText] = useState('');
-  const [lastScheduled, setLastScheduled] = useState<string | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-  }, []);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('🟢 [INDEX] Screen focused, trying to load data...');
-
-      const loadData = async () => {
-        try {
-          const saved = await AsyncStorage.getItem('userSavedText');
-          console.log('📦 [INDEX] Raw value from AsyncStorage:', saved);
-
-          if (saved !== null) {
-            console.log('✅ [INDEX] Data found, setting to state:', saved);
-            setLoadedText(saved);
-          } else {
-            console.log('⚠️ [INDEX] No data found in AsyncStorage');
-          }
-
-          // Load last scheduled time
-          const lastTime = await AsyncStorage.getItem('lastScheduledTime');
-          if (lastTime) {
-            setLastScheduled(lastTime);
-          }
-        } catch (error) {
-          console.log('❌ [INDEX] Error loading data:', error);
-        }
-      };
-
-      loadData();
-    }, [])
-  );
-
-  const onTimeChange = (_event: any, selected?: Date) => {
-    setShowPicker(Platform.OS === 'ios');
-    if (selected) {
-      setSelectedTime(selected);
-    }
-  };
-
-  const handleSchedule = async () => {
-    if (!loadedText.trim()) {
-      alert('Please set a notification message first');
-      return;
-    }
-
-    const hour = selectedTime.getHours();
-    const minute = selectedTime.getMinutes();
-    await scheduleNotification(hour, minute, loadedText);
-
-    // Reload last scheduled time
-    const lastTime = await AsyncStorage.getItem('lastScheduledTime');
-    if (lastTime) {
-      setLastScheduled(lastTime);
-    }
-
-    alert(`Notification scheduled for ${hour}:${minute.toString().padStart(2, '0')}`);
-  };
-
-  const formatTime = (date: Date) => {
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  };
-
-  const formatLastUsed = (isoString: string | null) => {
-    if (!isoString) return 'Never';
-    const date = new Date(isoString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+export default function HomeScreen() {
+  // Get all medications from the store
+  const medications = useMedicationStore((state) => state.medications);
 
   return (
     <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <Text style={styles.header}>MediMate</Text>
-        <Text style={styles.subtitle}>Daily Medication Reminder</Text>
-
-      {/* Segment 1: Notification Time */}
-      <SegmentCard
-        title="Notification Time"
-        icon={<Ionicons name="time-outline" size={20} color={theme.colors.primary} />}
-      >
-        <View style={styles.timeContainer}>
-          <Ionicons name="alarm-outline" size={32} color={theme.colors.primary} />
-          <Text style={styles.timeDisplay}>{formatTime(selectedTime)}</Text>
-        </View>
-
-        <CustomButton
-          title="Pick Time"
-          onPress={() => setShowPicker(true)}
-          variant="outline"
-          icon={<Ionicons name="create-outline" size={18} color={theme.colors.primary} />}
-        />
-
-        {showPicker && (
-          <DateTimePicker
-            value={selectedTime}
-            mode="time"
-            is24Hour={true}
-            display="default"
-            onChange={onTimeChange}
-          />
-        )}
-
-        <View style={styles.lastUsedContainer}>
-          <Ionicons name="checkmark-circle-outline" size={14} color={theme.colors.textMuted} />
-          <Text style={styles.lastUsedText}>
-            Last scheduled: {formatLastUsed(lastScheduled)}
-          </Text>
-        </View>
-      </SegmentCard>
-
-      {/* Segment 2: Notification Text */}
-      <SegmentCard
-        title="Notification Message"
-        icon={<Ionicons name="chatbox-outline" size={20} color={theme.colors.primary} />}
-      >
-        <View style={styles.textPreviewContainer}>
-          <Text style={styles.textPreviewLabel}>Current message:</Text>
-          <Text style={styles.textPreview}>
-            {loadedText || 'No message set yet'}
-          </Text>
-        </View>
-
-        <CustomButton
-          title="Edit Message"
-          onPress={() => router.push('/second')}
-          variant="secondary"
-          icon={<Ionicons name="pencil-outline" size={18} color={theme.colors.white} />}
-        />
-      </SegmentCard>
-
-      {/* Segment 3: Schedule Button */}
-      <SegmentCard
-        title="Schedule"
-        icon={<Ionicons name="notifications-outline" size={20} color={theme.colors.primary} />}
-      >
-        <CustomButton
-          title="Schedule Daily Notification"
-          onPress={handleSchedule}
-          variant="primary"
-          disabled={!loadedText.trim()}
-          icon={<Ionicons name="send-outline" size={18} color={theme.colors.white} />}
-        />
-
-        {!loadedText.trim() && (
-          <Text style={styles.warningText}>
-            Please set a notification message before scheduling
-          </Text>
-        )}
-      </SegmentCard>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <Text style={styles.title}>My Medications</Text>
       </View>
+
+      {/* Scrollable Content Area */}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Show empty state if no medications */}
+        {medications.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Ionicons
+              name="medical-outline"
+              size={64}
+              color={theme.colors.textMuted}
+            />
+            <Text style={styles.emptyStateTitle}>No Medications Yet</Text>
+            <Text style={styles.emptyStateText}>
+              Tap the + button above to add your first medication
+            </Text>
+          </View>
+        ) : (
+          /* Show list of medication cards */
+          medications.map((medication) => (
+            <MedicationCard key={medication.id} medication={medication} />
+          ))
+        )}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Main container (full screen)
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  contentContainer: {
-    flex: 1,
-    padding: theme.spacing.md,
-    gap: theme.spacing.sm,
-    justifyContent: 'center',
-  },
+
+  // Header at the top of the screen
   header: {
-    ...theme.typography.h2,
-    color: theme.colors.primary,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.sm,
   },
-  subtitle: {
-    ...theme.typography.caption,
-    color: theme.colors.textLight,
-    textAlign: 'center',
-    marginBottom: theme.spacing.sm,
-  },
-  timeContainer: {
-    alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingVertical: theme.spacing.xs,
-  },
-  timeDisplay: {
-    fontSize: 36,
-    fontWeight: '700',
+
+  // Title text in the header
+  title: {
+    fontSize: theme.typography.h2.fontSize,
+    fontWeight: theme.typography.h2.fontWeight,
     color: theme.colors.primary,
   },
-  lastUsedContainer: {
-    flexDirection: 'row',
+
+  // Content area inside the scroll view
+  scrollContent: {
+    padding: theme.spacing.md,
+    flexGrow: 1,
+  },
+
+  // Empty state container (centered)
+  emptyState: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: theme.spacing.xs,
-    marginTop: theme.spacing.xs,
+    paddingVertical: theme.spacing.xxl * 2,
   },
-  lastUsedText: {
-    ...theme.typography.small,
+
+  // Empty state title text
+  emptyStateTitle: {
+    fontSize: theme.typography.h3.fontSize,
+    fontWeight: theme.typography.h3.fontWeight,
     color: theme.colors.textMuted,
-  },
-  textPreviewContainer: {
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.md,
+    marginTop: theme.spacing.md,
     marginBottom: theme.spacing.xs,
   },
-  textPreviewLabel: {
-    ...theme.typography.small,
-    color: theme.colors.textMuted,
-    marginBottom: theme.spacing.xs,
-  },
-  textPreview: {
-    ...theme.typography.caption,
-    color: theme.colors.text,
-    fontStyle: 'italic',
-  },
-  warningText: {
-    ...theme.typography.small,
+
+  // Empty state description text
+  emptyStateText: {
+    fontSize: theme.typography.caption.fontSize,
     color: theme.colors.textMuted,
     textAlign: 'center',
-    marginTop: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.xl,
   },
 });
