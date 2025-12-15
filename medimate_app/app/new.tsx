@@ -24,9 +24,6 @@ export default function NewMedicationScreen() {
   ]);
   const [errors, setErrors] = useState<string[]>([]);
 
-  // Time picker state
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [editingScheduleIndex, setEditingScheduleIndex] = useState<number | null>(null);
 
   // Get store action
   const addMedication = useMedicationStore((state) => state.addMedication);
@@ -89,15 +86,6 @@ export default function NewMedicationScreen() {
     router.back();
   };
 
-  // Time picker handler
-  const handleTimeChange = (_event: any, selectedDate?: Date) => {
-    setShowTimePicker(false);
-    if (selectedDate && editingScheduleIndex !== null) {
-      const hours = selectedDate.getHours().toString().padStart(2, '0');
-      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
-      updateScheduleTime(editingScheduleIndex, `${hours}:${minutes}`);
-    }
-  };
 
   return (
     <KeyboardAvoidingView
@@ -141,35 +129,37 @@ export default function NewMedicationScreen() {
           <Text style={styles.label}>Daily Schedule *</Text>
 
           {schedules.map((schedule, index) => (
-            <View key={index} style={styles.scheduleRow}>
-              <TouchableOpacity
-                style={styles.timeButton}
-                onPress={() => {
-                  setEditingScheduleIndex(index);
-                  setShowTimePicker(true);
-                }}
-              >
-                <Text style={schedule.time ? styles.timeText : styles.timePlaceholder}>
-                  {schedule.time || 'Select time'}
-                </Text>
-              </TouchableOpacity>
+            <View key={index} style={styles.scheduleContainer}>
+              <View style={styles.scheduleRow}>
+                <DateTimePicker
+                  mode="time"
+                  value={schedule.time ? new Date(`2000-01-01T${schedule.time}`) : new Date()}
+                  onChange={(_event, selectedDate) => {
+                    if (selectedDate) {
+                      const hours = selectedDate.getHours().toString().padStart(2, '0');
+                      const minutes = selectedDate.getMinutes().toString().padStart(2, '0');
+                      updateScheduleTime(index, `${hours}:${minutes}`);
+                    }
+                  }}
+                />
 
-              <TextInput
-                value={schedule.dosage}
-                onChangeText={(text) => updateScheduleDosage(index, text)}
-                placeholder="e.g., 500mg, 2 pills"
-                style={styles.dosageInput}
-                placeholderTextColor={theme.colors.textMuted}
-              />
+                <TextInput
+                  value={schedule.dosage}
+                  onChangeText={(text) => updateScheduleDosage(index, text)}
+                  placeholder="e.g., 500mg, 2 pills"
+                  style={styles.dosageInput}
+                  placeholderTextColor={theme.colors.textMuted}
+                />
 
-              {schedules.length > 1 && (
-                <TouchableOpacity
-                  onPress={() => removeSchedule(index)}
-                  style={styles.removeButton}
-                >
-                  <Text style={styles.removeButtonText}>✕</Text>
-                </TouchableOpacity>
-              )}
+                {schedules.length > 1 && (
+                  <TouchableOpacity
+                    onPress={() => removeSchedule(index)}
+                    style={styles.removeButton}
+                  >
+                    <Text style={styles.removeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           ))}
 
@@ -198,15 +188,6 @@ export default function NewMedicationScreen() {
           style={styles.saveButton}
         />
       </ScrollView>
-
-      {/* Time Picker Modal */}
-      {showTimePicker && (
-        <DateTimePicker
-          mode="time"
-          value={new Date()}
-          onChange={handleTimeChange}
-        />
-      )}
     </KeyboardAvoidingView>
   );
 }
@@ -246,29 +227,13 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
   },
+  scheduleContainer: {
+    marginBottom: theme.spacing.md,
+  },
   scheduleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.sm,
     gap: theme.spacing.sm,
-  },
-  timeButton: {
-    flex: 1,
-    backgroundColor: theme.colors.white,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.sm,
-    padding: theme.spacing.md,
-    justifyContent: 'center',
-  },
-  timeText: {
-    fontSize: 16,
-    color: theme.colors.text,
-    fontWeight: '500',
-  },
-  timePlaceholder: {
-    fontSize: 16,
-    color: theme.colors.textMuted,
   },
   dosageInput: {
     flex: 1.5,
@@ -279,6 +244,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     fontSize: 16,
     color: theme.colors.text,
+    minHeight: 48,
   },
   removeButton: {
     width: 32,
