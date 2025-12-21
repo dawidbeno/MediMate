@@ -7,9 +7,11 @@ interface CardProps {
   style?: ViewStyle;
 }
 
-export const Card: React.FC<CardProps> = ({ children, style }) => {
+// Card component rewritten as a function declaration instead of an arrow function
+export function Card(props: CardProps) {
+  const { children, style } = props;
   return <View style={[styles.card, style]}>{children}</View>;
-};
+}
 
 const styles = StyleSheet.create({
   card: {
